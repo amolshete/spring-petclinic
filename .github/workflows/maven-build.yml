@@ -116,9 +116,8 @@ jobs:
         run: |
           scp -i key.pem -o StrictHostKeyChecking=no ${{ env.JAR_FILE }} ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }}:${{ env.REMOTE_PATH }}/
           
-      - name: Start new JAR app
+      - name: Restart JAR app
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} << EOF
-            nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 &
-            echo "New app started"
-          EOF    
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} \
+          "pkill -f ${{ env.APP_NAME }} || true && nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 & echo 'App restarted'"
+

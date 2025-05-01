@@ -120,5 +120,5 @@ jobs:
       - name: Restart JAR app
         run: |
           ssh -i key.pem -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} \
-          "pkill -f ${{ env.APP_NAME }} || true && nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 & echo 'App restarted'"
+          "pkill -f ${{ env.APP_NAME }} || true && sleep 20 && nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 & echo 'App restarted'"
 

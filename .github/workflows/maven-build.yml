@@ -103,7 +103,7 @@ jobs:
           echo "JAR_FILE=target/spring-petclinic-2.7.0-SNAPSHOT.jar" >> $GITHUB_ENV       # <-- Replace with actual .jar path
           echo "REMOTE_USER=ubuntu" >> $GITHUB_ENV                 # <-- Replace with your remote user
           echo "REMOTE_HOST=65.1.148.74" >> $GITHUB_ENV         # <-- Replace with your remote IP/host
-          echo "REMOTE_PATH=/opt" >> $GITHUB_ENV               # <-- Replace with remote target directory
+          echo "REMOTE_PATH=/home/ubuntu" >> $GITHUB_ENV               # <-- Replace with remote target directory
           echo "APP_NAME=spring-petclinic-2.7.0-SNAPSHOT.jar" >> $GITHUB_ENV              # <-- Same as actual JAR file name    
     
       - name: Prepare SSH key

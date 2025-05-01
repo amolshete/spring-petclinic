@@ -50,6 +50,7 @@ jobs:
   build:
 
     runs-on: self-hosted
+    needs: test
 
     steps:
       - name: checkout the code
@@ -57,6 +58,15 @@ jobs:
     
       - name: Build with Maven Wrapper
         run: mvn clean install
+
+      - name: check directory
+        run: ls -l target
+        
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-app
+          path: target/spring-petclinic-2.7.0-SNAPSHOT.jar  
         
       - uses: actions/checkout@v4
         with:

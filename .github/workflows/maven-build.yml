@@ -55,6 +55,9 @@ jobs:
     steps:
       - name: checkout the code
         uses: actions/checkout@v2
+        with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+         fetch-depth: 0
     
       - name: Build with Maven Wrapper
         run: mvn clean install
@@ -67,11 +70,7 @@ jobs:
         with:
           name: java-app
           path: target/spring-petclinic-2.7.0-SNAPSHOT.jar  
-        
-      - uses: actions/checkout@v4
-        with:
-        # Disabling shallow clones is recommended for improving the relevancy of reporting
-         fetch-depth: 0
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
         env:
@@ -86,4 +85,39 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+  deploy:
+      runs-on: self-hosted
+      needs: build
+      steps:
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: java-app
+          
+      - name: check directory
+        run: ls -l
+        
+      - name: Set deployment variables
+        run: |
+          echo "JAR_FILE=target/spring-petclinic-2.7.0-SNAPSHOT.jar" >> $GITHUB_ENV       # <-- Replace with actual .jar path
+          echo "REMOTE_USER=ubuntu" >> $GITHUB_ENV                 # <-- Replace with your remote user
+          echo "REMOTE_HOST=65.1.148.74" >> $GITHUB_ENV         # <-- Replace with your remote IP/host
+          echo "REMOTE_PATH=/opt/app" >> $GITHUB_ENV               # <-- Replace with remote target directory
+          echo "APP_NAME=spring-petclinic-2.7.0-SNAPSHOT.jar" >> $GITHUB_ENV              # <-- Same as actual JAR file name    
     
+      - name: Prepare SSH key
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > key.pem
+          chmod 400 key.pem
+          
+      - name: Transfer JAR to remote server
+        run: |
+          scp -i key.pem -o StrictHostKeyChecking=no ${{ env.JAR_FILE }} ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }}:${{ env.REMOTE_PATH }}/
+          
+      - name: Start new JAR app
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} << EOF
+            nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 &
+            echo "New app started"
+          EOF    

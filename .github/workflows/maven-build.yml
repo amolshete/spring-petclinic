@@ -121,4 +121,4 @@ jobs:
           ssh -i key.pem -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} << EOF
             nohup java -jar ${{ env.REMOTE_PATH }}/${{ env.APP_NAME }} > ${{ env.REMOTE_PATH }}/app.log 2>&1 &
             echo "New app started"
-EOF    
+          EOF    
